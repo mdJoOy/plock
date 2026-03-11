@@ -44,7 +44,18 @@ func timer(limit time.Duration) {
 			}
 		}
 		dur := time.Duration(duration.Load())
-		putTime(durationToStr(dur))
+
+		// NEW: Calculate remaining time if a limit is set
+		displayDur := dur
+		if limit != 0 {
+			displayDur = limit - dur
+			if displayDur < 0 {
+				displayDur = 0
+			}
+		}
+
+		// This now puts the REMAINING time on screen
+		putTime(durationToStr(displayDur))
 
 		// "Current time: "
 		putText(now.Format(timeFormat),
