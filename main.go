@@ -23,8 +23,8 @@ OPTIONS:
   -p  pomodoro timer length (default "45m")
   -b  break length (default "10m")
   -c  clock mode
-  -t  timer mode or count up form 0 seconds
-  -u  timer mode or count up form 0 seconds until specified time. eg. (1m30s, 3:04PM or 15:04)
+  -t  timer mode or counts up from 0 seconds
+  -u  timer mode or counts down from specified time to 0 second. eg. (1m30s, 3:04PM or 15:04)
   -e  don't show "Ends at: ` + timeFormat + `"
   -s  silence. play no sounds
   -n  show notifications
