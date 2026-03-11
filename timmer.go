@@ -10,7 +10,7 @@ import (
 )
 
 // if limit == 0 then the loop runs for infinitely
-func timer(limit time.Duration) {
+func timer(limit time.Duration, down bool) {
 	queues := make(chan termbox.Event)
 	go func() {
 		for {
@@ -23,6 +23,9 @@ func timer(limit time.Duration) {
 	ticker := time.NewTicker(time.Second / time.Duration(fpsFlag)) // 30fps
 
 	duration := atomic.Int64{}
+	if down {
+		duration.Store(int64(limit))
+	}
 	end := time.Now().Add(limit)
 	paused := false
 
@@ -44,18 +47,7 @@ func timer(limit time.Duration) {
 			}
 		}
 		dur := time.Duration(duration.Load())
-
-		// NEW: Calculate remaining time if a limit is set
-		displayDur := dur
-		if limit != 0 {
-			displayDur = limit - dur
-			if displayDur < 0 {
-				displayDur = 0
-			}
-		}
-
-		// This now puts the REMAINING time on screen
-		putTime(durationToStr(displayDur))
+		putTime(durationToStr(dur))
 
 		// "Current time: "
 		putText(now.Format(timeFormat),
@@ -74,7 +66,7 @@ func timer(limit time.Duration) {
 
 		flush()
 
-		if limit != 0 && dur >= limit {
+		if down && dur <= 0 || !down && limit != 0 && dur >= limit {
 			if showNotifications {
 				go notify("Time out", fmt.Sprintf("%s is over", limit.String()))
 			}
@@ -96,7 +88,11 @@ func timer(limit time.Duration) {
 			case <-done:
 				return
 			case <-timmerTicker.C: // when paused it will be stopeed
-				duration.Add(int64(time.Second))
+				if down {
+					duration.Add(-int64(time.Second))
+				} else {
+					duration.Add(int64(time.Second))
+				}
 			}
 		}
 	}(timerDone)
